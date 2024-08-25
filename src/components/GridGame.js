@@ -56,13 +56,27 @@ const GridGame = () => {
         }
     };
 
+    
+
     const handleMove = (character, direction) => {
-        // Check if the character is dead
+
+        
+            if (killedPlayer1Characters.length === 5) {
+                alert("Player 2 wins! Start a new game.");
+                window.location.reload(); 
+            } else if (killedPlayer2Characters.length === 5) {
+                alert("Player 1 wins! Start a new game.");
+                window.location.reload(); 
+            }
+        
+
         if (
             (playerTurn === 1 && killedPlayer1Characters.includes(character)) ||
             (playerTurn === 2 && killedPlayer2Characters.includes(character))
         ) {
             setWarningMessage(`${character} is dead and cannot be moved!`);
+            console.log(killedPlayer1Characters.length);
+     
             setTimeout(() => setWarningMessage(""), 2000);
             return;
         }
@@ -149,6 +163,7 @@ const GridGame = () => {
                     grid[r][c] = null;
                 }
             }
+            //checkWinner();
         });
 
         if (newRow >= 0 && newRow < 5 && newCol >= 0 && newCol < 5) {
