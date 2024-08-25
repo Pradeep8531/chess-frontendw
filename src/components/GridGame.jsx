@@ -1,4 +1,7 @@
 import React, { useState } from 'react';
+import Grid from './grid';
+import CharacterSelection from './CharacterSelection';
+import Movecharacter from './Movecharacter';
 
 const GridGame = () => {
     const initialGrid = [
@@ -16,7 +19,6 @@ const GridGame = () => {
     const [playerTurn, setPlayerTurn] = useState(1);
     const [warningMessage, setWarningMessage] = useState("");
 
-    // Create lists to track killed characters
     const [killedPlayer1Characters, setKilledPlayer1Characters] = useState([]);
     const [killedPlayer2Characters, setKilledPlayer2Characters] = useState([]);
 
@@ -56,7 +58,15 @@ const GridGame = () => {
         }
     };
 
-    
+    function checkwin(){
+        if (killedPlayer1Characters.length === 5) {
+            alert("Player 2 wins! Start a new game.");
+            window.location.reload(); 
+        } else if (killedPlayer2Characters.length === 5) {
+            alert("Player 1 wins! Start a new game.");
+            window.location.reload(); 
+        }
+    }
 
     const handleMove = (character, direction) => {
 
@@ -186,6 +196,7 @@ const GridGame = () => {
             setWarningMessage("Move out of bounds.");
             setTimeout(() => setWarningMessage(""), 2000);
         }
+        checkwin();
     };
 
     const findCharacterPosition = (character) => {
@@ -209,54 +220,17 @@ const GridGame = () => {
                 </div>
             )}
 
-            <div className="mb-4">
-                <h2 className="text-xl mb-2">Player {playerTurn} - Select a Character</h2>
-                <div className="flex space-x-2">
-                    {(playerTurn === 1 ? player1Characters : player2Characters).map(character => (
-                        <button
-                            key={character}
-                            className={`px-4 py-2 rounded ${
-                                selectedCharacter === character ? 'bg-blue-600' : 'bg-gray-700'
-                            }`}
-                            onClick={() => handleCharacterSelect(character)}
-                        >
-                            {character}
-                        </button>
-                    ))}
-                </div>
-            </div>
+            <CharacterSelection
+                player1Characters={player1Characters}
+                player2Characters={player2Characters}
+                onCharacterSelect={handleCharacterSelect}
+                selectedCharacter={selectedCharacter}
+                playerTurn={playerTurn}
+            />
 
-            <div className="grid grid-cols-5 gap-2">
-                {grid.map((row, rowIndex) =>
-                    row.map((cell, colIndex) => (
-                        <div
-                            key={`${rowIndex}-${colIndex}`}
-                            className={`w-16 h-16 border-2 border-gray-600 flex items-center justify-center cursor-pointer ${
-                                rowIndex === (playerTurn === 1 ? 0 : 4) && cell === null && selectedCharacter ? 'hover:bg-gray-700' : ''
-                            }`}
-                            onClick={() => handleCellClick(rowIndex, colIndex)}
-                        >
-                            {cell}
-                        </div>
-                    ))
-                )}
-            </div>
+            <Grid grid={grid} onCellClick={handleCellClick} />
 
-            <div className="mt-4">
-                <h2 className="text-xl mb-2">Move Character</h2>
-                <input
-                    type="text"
-                    placeholder="Enter move (e.g., P1:L, H1:F, H2:FL)"
-                    className="px-4 py-2 rounded bg-gray-700 text-white"
-                    onKeyDown={(e) => {
-                        if (e.key === 'Enter') {
-                            const [char, direction] = e.target.value.split(':');
-                            handleMove(char, direction);
-                            e.target.value = '';
-                        }
-                    }}
-                />
-            </div>
+            <Movecharacter onMove={handleMove} />
         </div>
     );
 };
