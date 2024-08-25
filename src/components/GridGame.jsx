@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import Grid from './grid';
 import CharacterSelection from './CharacterSelection';
 import Movecharacter from './Movecharacter';
+import Details from './details';
 
 const GridGame = () => {
     const initialGrid = [
@@ -18,6 +19,8 @@ const GridGame = () => {
     const [selectedCharacter, setSelectedCharacter] = useState(null);
     const [playerTurn, setPlayerTurn] = useState(1);
     const [warningMessage, setWarningMessage] = useState("");
+    const [moveHistory, setMoveHistory] = useState([]);
+
 
     const [killedPlayer1Characters, setKilledPlayer1Characters] = useState([]);
     const [killedPlayer2Characters, setKilledPlayer2Characters] = useState([]);
@@ -70,6 +73,25 @@ const GridGame = () => {
 
     const handleMove = (character, direction) => {
 
+        const validPawnDirections = ['L', 'R', 'F', 'B'];
+    const validHero1And3Directions = ['L', 'R', 'F', 'B'];
+    const validHero2And4Directions = ['FL', 'FR', 'BL', 'BR'];
+
+    let validDirections = [];
+
+    if (character.startsWith('P')) {
+        validDirections = validPawnDirections;
+    } else if (character === 'H1' || character === 'H3') {
+        validDirections = validHero1And3Directions;
+    } else if (character === 'H2' || character === 'H4') {
+        validDirections = validHero2And4Directions;
+    }
+
+    if (!validDirections.includes(direction)) {
+        setWarningMessage(`Invalid direction! ${character} cannot move in the direction '${direction}'.`);
+        setTimeout(() => setWarningMessage(""), 2000);
+        return;
+    }
         
             if (killedPlayer1Characters.length === 5) {
                 alert("Player 2 wins! Start a new game.");
@@ -161,19 +183,21 @@ const GridGame = () => {
             }
         }
 
+        const moveDetails = `Player ${playerTurn} : ${character} : ${direction}`;
+setMoveHistory([...moveHistory, moveDetails]);
+
         cellsToCheck.forEach(([r, c]) => {
             if (r >= 0 && r < 5 && c >= 0 && c < 5) {
                 const targetCell = grid[r][c];
                 if (playerTurn === 1 && ["P4", "P5", "P6", "H3", "H4"].includes(targetCell)) {
-                    setKilledPlayer2Characters([...killedPlayer2Characters, targetCell]); // Add to killedPlayer2 list
+                    setKilledPlayer2Characters([...killedPlayer2Characters, targetCell]); 
                     grid[r][c] = null;
                 }
                 if (playerTurn === 2 && ["P1", "P2", "P3", "H1", "H2"].includes(targetCell)) {
-                    setKilledPlayer1Characters([...killedPlayer1Characters, targetCell]); // Add to killedPlayer1 list
+                    setKilledPlayer1Characters([...killedPlayer1Characters, targetCell]);
                     grid[r][c] = null;
                 }
             }
-            //checkWinner();
         });
 
         if (newRow >= 0 && newRow < 5 && newCol >= 0 && newCol < 5) {
@@ -231,6 +255,15 @@ const GridGame = () => {
             <Grid grid={grid} onCellClick={handleCellClick} />
 
             <Movecharacter onMove={handleMove} />
+            <div className="move-history mt-4 p-2 bg-gray-800 rounded">
+                <h2 className="text-lg font-semibold mb-2">Move History</h2>
+                    <ul>
+                        {moveHistory.map((move, index) => (
+                        <li key={index}>{move}</li>
+                    ))}
+            </ul>
+            </div>
+            <Details/>
         </div>
     );
 };
