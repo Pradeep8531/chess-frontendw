@@ -1,4 +1,3 @@
-// File: src/components/GridGame.js
 import React, { useState } from 'react';
 
 const GridGame = () => {
@@ -32,7 +31,6 @@ const GridGame = () => {
         }
 
 
-        // Place the selected character on the grid
         const newGrid = grid.map((r, rowIndex) =>
             r.map((cell, colIndex) => {
                 if (rowIndex === row && colIndex === col && cell === null) {
@@ -43,7 +41,6 @@ const GridGame = () => {
         );
         setGrid(newGrid);
 
-        // Remove the character from the player's available characters
         if (playerTurn === 1) {
             setPlayer1Characters(player1Characters.filter(char => char !== selectedCharacter));
         } else {
@@ -62,7 +59,7 @@ const GridGame = () => {
         let newRow = row;
         let newCol = col;
 
-        if (character.startsWith('P')) {
+        if (character.startsWith('P4') || character.startsWith('P5')  || character.startsWith('P6')) {
             switch (direction) {
                 case 'L': newCol -= 1; break;
                 case 'R': newCol += 1; break;
@@ -70,7 +67,25 @@ const GridGame = () => {
                 case 'B': newRow += 1; break;
                 default: return;
             }
-        } else if (character.startsWith('H1')) {
+        }else if (character.startsWith('P1') || character.startsWith('P2')  || character.startsWith('P3')){
+            switch (direction) {
+                case 'R': newCol -= 1; break;
+                case 'L': newCol += 1; break;
+                case 'B': newRow -= 1; break;
+                case 'F': newRow += 1; break;
+                default: return;
+            }
+        }
+         else if (character.startsWith('H1')){
+            switch (direction) {
+                case 'R': newCol -= 2; break;
+                case 'L': newCol += 2; break;
+                case 'B': newRow -= 2; break;
+                case 'F': newRow += 2; break;
+                default: return;
+            }
+        }
+        else if(character.startsWith('H3')) { 
             switch (direction) {
                 case 'L': newCol -= 2; break;
                 case 'R': newCol += 2; break;
@@ -78,7 +93,16 @@ const GridGame = () => {
                 case 'B': newRow += 2; break;
                 default: return;
             }
-        } else if (character.startsWith('H2')) {
+        } else if (character.startsWith('H2')){
+            switch (direction) {
+                case 'BR': newRow -= 2; newCol -= 2; break;
+                case 'BL': newRow -= 2; newCol += 2; break;
+                case 'FR': newRow += 2; newCol -= 2; break;
+                case 'FL': newRow += 2; newCol += 2; break;
+                default: return;
+            }
+        }
+        else if( character.startsWith('H4')) {
             switch (direction) {
                 case 'FL': newRow -= 2; newCol -= 2; break;
                 case 'FR': newRow -= 2; newCol += 2; break;
