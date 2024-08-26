@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Grid from './grid';
 import CharacterSelection from './CharacterSelection';
 import Movecharacter from './Movecharacter';
@@ -24,6 +24,48 @@ const GridGame = () => {
 
     const [killedPlayer1Characters, setKilledPlayer1Characters] = useState([]);
     const [killedPlayer2Characters, setKilledPlayer2Characters] = useState([]);
+
+
+    const [ws, setWs] = useState(null);
+
+    useEffect(() => {
+        const socket = new WebSocket('ws://localhost:3001');
+        socket.onopen = () => {
+            console.log('Connected to the server');
+        };
+        socket.onmessage = (event) => {
+            const message = JSON.parse(event.data);
+            handleServerMessage(message);
+        };
+        socket.onclose = () => {
+            console.log('Disconnected from the server');
+        };
+        setWs(socket);
+
+        return () => socket.close();
+    }, []);
+
+    const handleServerMessage = (message) => {
+        switch (message.type) {
+            case 'INIT':
+                setGrid(message.gameState.grid);
+                break;
+            case 'UPDATE':
+                setGrid(message.gameState.grid);
+                setPlayerTurn(message.gameState.playerTurn);
+                break;
+            case 'INVALID_MOVE':
+                setWarningMessage(message.reason);
+                setTimeout(() => setWarningMessage(""), 2000);
+                break;
+            case 'WIN':
+                alert(`${message.winner} wins! Start a new game.`);
+                window.location.reload();
+                break;
+            default:
+                break;
+        }
+    };
 
     const handleCharacterSelect = (character) => {
         setSelectedCharacter(character);
@@ -53,6 +95,15 @@ const GridGame = () => {
         } else {
             setPlayer2Characters(player2Characters.filter(char => char !== selectedCharacter));
         }
+        if (ws) {
+            ws.send(JSON.stringify({
+                type: 'MOVE',
+                character: selectedCharacter,
+                direction: '',
+                playerTurn
+            }));
+        }
+
 
         setSelectedCharacter(null);
 
@@ -62,12 +113,29 @@ const GridGame = () => {
     };
 
     function checkwin(){
+        let winner = "";
         if (killedPlayer1Characters.length === 5) {
+            winner = "2";
             alert("Player 2 wins! Start a new game.");
             window.location.reload(); 
+
+        if (ws) {
+            ws.send(JSON.stringify({
+                type: 'WIN',
+                winner : winner,
+            }));
+        }
         } else if (killedPlayer2Characters.length === 5) {
+            winner = "1";
             alert("Player 1 wins! Start a new game.");
             window.location.reload(); 
+
+        if (ws) {
+            ws.send(JSON.stringify({
+                type: 'WIN',
+                winner : winner,
+            }));
+        }
         }
     }
 
@@ -93,13 +161,30 @@ const GridGame = () => {
         return;
     }
         
-            if (killedPlayer1Characters.length === 5) {
-                alert("Player 2 wins! Start a new game.");
-                window.location.reload(); 
-            } else if (killedPlayer2Characters.length === 5) {
-                alert("Player 1 wins! Start a new game.");
-                window.location.reload(); 
-            }
+    let winner = "";
+    if (killedPlayer1Characters.length === 5) {
+        winner = "2";
+        alert("Player 2 wins! Start a new game.");
+        window.location.reload(); 
+
+    if (ws) {
+        ws.send(JSON.stringify({
+            type: 'WIN',
+            winner : winner,
+        }));
+    }
+    } else if (killedPlayer2Characters.length === 5) {
+        winner = "1";
+        alert("Player 1 wins! Start a new game.");
+        window.location.reload(); 
+
+    if (ws) {
+        ws.send(JSON.stringify({
+            type: 'WIN',
+            winner : winner,
+        }));
+    }
+    }
         
 
         if (
@@ -185,6 +270,15 @@ const GridGame = () => {
 
         const moveDetails = `Player ${playerTurn} : ${character} : ${direction}`;
 setMoveHistory([...moveHistory, moveDetails]);
+        if (ws) {
+            ws.send(JSON.stringify({
+            type: 'MOVE',
+            character,
+            direction,
+            playerTurn
+        }));
+}
+
 
         cellsToCheck.forEach(([r, c]) => {
             if (r >= 0 && r < 5 && c >= 0 && c < 5) {
