@@ -11,8 +11,8 @@ Responsive UI: Built with React and styled using Tailwind CSS for a modern, resp
 
 ## Installation
 
-1) Clone the frontend repository to your local machine: **git clone <repository-url>**
-2) Navigate to the Project Directory: **cd 5x5-grid-game-frontend**
+1) Clone the frontend repository to your local machine: **git clone repository-url**
+2) Navigate to the Project Directory: **cd chess-frontendw**
 3) Install Dependencies: **npm install**
 
 
