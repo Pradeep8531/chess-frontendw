@@ -1,3 +1,5 @@
+import React from 'react';
+
 const Details = () => {
     return (
         <div className="mt-8 mb-8 bg-gray-800 p-4 rounded-lg">
@@ -26,6 +28,6 @@ const Details = () => {
             </ul>
         </div>
     );
-}
+};
 
 export default Details;
